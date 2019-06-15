@@ -1218,6 +1218,70 @@ Public Function GetAxialDiagram(MemberName As String) As EZArray
     
 End Function
 
+'Returns the local displacement diagram for a member, segment-by-segment
+Public Function GetAxialDiagram2(MemberName As String) As EZArray
+        
+    'Solve the model if necessary
+    If Solved = False Then
+        Call Analyze
+    End If
+    
+    'Start a new array to hold the results
+    Set GetAxialDiagram2 = New EZArray
+    
+    'Step through each member in the 'Members' collection
+    Dim MemberItem As Member2D
+    For Each MemberItem In Members
+    
+        'Find the member in the 'Members' collection
+        If MemberItem.Name = MemberName Then
+            Const p As Long = 12 'qty of intermediate partitions per segment
+            Dim r As Long 'EZArray index
+            Dim s As Long 'Segment counter
+            Dim SegmentItem As Variant 'Segment
+
+            'Resize EZarray
+            Call GetAxialDiagram2.Resize(MemberItem.NumSegs * (p + 1), 2)
+
+            For Each SegmentItem In MemberItem.Segments
+                With SegmentItem
+                
+                    Dim i As Long, x As Double
+                    s = s + 1
+                    
+                    'Determine EZArray index value
+                    r = 1 + (s - 1) * (p + 1)
+                    
+                    'Get diagram coordinates at start of segment
+                    Call GetAxialDiagram2.SetValue(r, 1, .SegStart)
+                    Call GetAxialDiagram2.SetValue(r, 2, .p1)
+                    
+                    'Get diagram coordinates at intermediate points
+                    For i = 2 To p + 1
+                        
+                        'Calculate the position of the x-coordinate
+                        x = .SegStart + (i - 1) * (.SegEnd - .SegStart) / p
+                        
+                        'Determine EZArray index value
+                        r = i + (s - 1) * (p + 1)
+                        
+                        'Get the diagram coordinates
+                        Call GetAxialDiagram2.SetValue(r, 1, x)
+                        Call GetAxialDiagram2.SetValue(r, 2, MemberItem.Axial(x))
+                        
+                    Next i
+                    
+                End With 'SegmentItem
+            Next SegmentItem
+            
+            Exit Function
+            
+        End If
+        
+    Next MemberItem
+    
+End Function
+
 'Returns the maximum axial force in a member
 Public Function GetMaxAxial(MemberName As String) As Double
         
