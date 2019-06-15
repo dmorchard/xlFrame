@@ -597,7 +597,7 @@ Public Function Pmax() As Double
         End If
     Next i
     
-    Pmax = Max
+    Pmax = WorksheetFunction.Max(Max, LocalForces.GetValue(1, 1), -LocalForces.GetValue(4, 1))
     
 End Function
 
@@ -614,7 +614,7 @@ Public Function Pmin() As Double
         End If
     Next i
     
-    Pmin = Min
+    Pmin = WorksheetFunction.Min(Min, LocalForces.GetValue(1, 1), -LocalForces.GetValue(4, 1))
     
 End Function
 
@@ -631,7 +631,7 @@ Public Function Vmax() As Double
         End If
     Next i
     
-    Vmax = Max
+    Vmax = WorksheetFunction.Max(Max, LocalForces.GetValue(2, 1), -LocalForces.GetValue(5, 1))
     
 End Function
 
@@ -648,7 +648,7 @@ Public Function Vmin() As Double
         End If
     Next i
     
-    Vmin = Min
+    Vmin = WorksheetFunction.Min(Min, LocalForces.GetValue(2, 1), -LocalForces.GetValue(5, 1))
     
 End Function
 
@@ -665,7 +665,7 @@ Public Function Mmax() As Double
         End If
     Next i
     
-    Mmax = Max
+    Mmax = WorksheetFunction.Max(Max, -LocalForces.GetValue(3, 1), LocalForces.GetValue(6, 1))
     
 End Function
 
@@ -682,7 +682,7 @@ Public Function Mmin() As Double
         End If
     Next i
     
-    Mmin = Min
+    Mmin = WorksheetFunction.Min(Min, -LocalForces.GetValue(3, 1), LocalForces.GetValue(6, 1))
     
 End Function
 
@@ -740,13 +740,19 @@ Public Function Axial(x As Double) As Double
     'Declare local variables
     Dim i As Integer
     
-    'Find the segment the location falls within
-    i = 1
-    While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
-        i = i + 1
-    Wend
+    If Round(x, 8) = 0 Then
+        Axial = LocalForces.GetValue(1, 1)
+    ElseIf Round(x, 8) = Round(Length, 8) Then
+        Axial = -LocalForces.GetValue(4, 1)
+    Else
+        'Find the segment the location falls within
+        i = 1
+        While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
+            i = i + 1
+        Wend
     
-    Axial = m_Segments(i).Axial(x - m_Segments(i).SegStart)
+        Axial = m_Segments(i).Axial(x - m_Segments(i).SegStart)
+    End If
     
 End Function
 
@@ -756,13 +762,19 @@ Public Function Shear(x As Double) As Double
     'Declare local variables
     Dim i As Integer
     
-    'Find the segment the location falls within
-    i = 1
-    While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
-        i = i + 1
-    Wend
+    If Round(x, 8) = 0 Then
+        Shear = LocalForces.GetValue(2, 1)
+    ElseIf Round(x, 8) = Round(Length, 8) Then
+        Shear = -LocalForces.GetValue(5, 1)
+    Else
+        'Find the segment the location falls within
+        i = 1
+        While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
+            i = i + 1
+        Wend
     
-    Shear = m_Segments(i).Shear(x - m_Segments(i).SegStart)
+        Shear = m_Segments(i).Shear(Round(x - m_Segments(i).SegStart, 8))
+    End If
     
 End Function
 
@@ -772,13 +784,19 @@ Public Function Moment(x As Double) As Double
     'Declare local variables
     Dim i As Integer
     
-    'Find the segment that "x" falls on
-    i = 1
-    While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
-        i = i + 1
-    Wend
+    If Round(x, 8) = 0 Then
+        Moment = -LocalForces.GetValue(3, 1)
+    ElseIf Round(x, 8) = Round(Length, 8) Then
+        Moment = LocalForces.GetValue(6, 1)
+    Else
+        'Find the segment that "x" falls on
+        i = 1
+        While Round(x, 8) > Round(m_Segments(i).SegEnd, 8)
+            i = i + 1
+        Wend
     
-    Moment = m_Segments(i).Moment(x - m_Segments(i).SegStart)
+        Moment = m_Segments(i).Moment(x - m_Segments(i).SegStart)
+    End If
     
 End Function
 
