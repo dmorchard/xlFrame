@@ -56,7 +56,7 @@ Public Function NumRows() As Long
 On Error GoTo ErrorHandler:
     
     'Calculate and return the number of rows
-    NumRows = UBound(m_Matrix, 1) - LBound(m_Matrix, 2) + 1
+    NumRows = UBound(m_Matrix, 1) - LBound(m_Matrix, 1) + 1
     Exit Function
         
 ErrorHandler:
